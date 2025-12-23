@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationship Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💕 Our Love Story</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="love-letter.html" class="nav-link">Love Letter</a></li>
+                <li><a href="quiz.html" class="nav-link active">Quiz</a></li>
+                <li><a href="survey.html" class="nav-link">Survey</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="quiz-section">
+            <h1>Pop quiz!</h1>
+            <p class="quiz-subtitle">Take the pop quiz about us to see if you really know us...or if you're a fake fan</p>
+            <div id="quiz-container" class="quiz-container">
+                <!-- Quiz will be populated by JavaScript -->
+            </div>
+
+            <div id="quiz-result" class="quiz-result" style="display: none;">
+                <h2>Your Score: <span id="score"></span>%</h2>
+                <p id="result-message"></p>
+                <button onclick="location.reload()" class="btn">Retake Quiz</button>
+                <a href="index.html" class="btn">Back Home</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with love for you </p>
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                question: "What day of the week did we get together?",
+                options: ["Friday", "Saturday", "Tuesday"],
+                correct: 2,
+                messages: {
+                    0: "Not quite! We got together on a Tuesday! ",
+                    1: "Close...But it was a Tuesday! ",
+                    2: "Awwwww babe you really do remember our anniversary🥺"
+                }
+            },
+            {
+                question: "How many kids does Jess want?",
+                options: ["1", "2", "3"],
+                correct: 2,
+                messages: {
+                    0: "Ew why would Jess want to raise an only child? They're all menaces to society🙄",
+                    1: "Maybe. Depends if they turn out like the twins from the shining.",
+                    2: "Correct! ⸜(｡˃ ᵕ ˂ )⸝♡"
+                }
+            },
+            {
+                question: "What was the first date we went on?",
+                options: ["Ice Skating", "Cinema", "Zoo"],
+                correct: 0,
+                messages: {
+                    0: "Yassss it was ice skating! ฅ^>⩊<^ ฅ",
+                    1: "Silly billy, that was a couple dates later. Our first date was ice skating! ⛸️",
+                    2: "When did we ever go to the zoo? Our first date was ice skating!"
+                }
+            },
+            {
+                question: "What is the exact distance between our homes?",
+                options: ["43.4 Km", "41.8 Km", "42.2 Km"],
+                correct: 1,
+                messages: {
+                    0: "Silly goose... The distance is 41.8 Km!",
+                    1: "Yay! You got it right! The distance is indeed 41.8 Km!",
+                    2: "Nice try but it's actually 41.8 Km!"
+                }
+            },
+            {
+                question: "Who is the cutest most huggable huggaloo?",
+                options: ["Jess", "Tris", "Anyone else in the universe"],
+                correct: 1,
+                messages: {
+                    0: "Good guess, very good guess but the answer is Tris!",
+                    1: "Absolutely correct! Tris is the cutest huggaloo! 🥰💚",
+                    2: "Are you even trying?"
+                }
+            },
+            {
+                question: "How much does Jess love you?",
+                options: ["9/10", "100/100", "Trick question...there is no number to describe it"],
+                correct: 2,
+                messages: {
+                    0: "Girllllll be fr ╾━╤デ╦︻(•_- )",
+                    1: "Getting there! But her love goes beyond any number! 💕",
+                    2: "Exactly! Her love is infinite and immeasurable! ₍^ >⩊< ^₎Ⳋ"
+                }
+            },
+            {
+                question: "In 30 years time...what will the median of our ages be?",
+                options: ["32", "52", "104"],
+                correct: 1,
+                messages: {
+                    0: "Too low! Try again! 🎂",
+                    1: "Perfect! We'll be 52 at the median of our ages! 🎂💕",
+                    2: "Not quite.. 52 is the right answer! 🎂"
+                }
+            }
+        ];
+
+        let userAnswers = [];
+        let currentQuestion = 0;
+        let showingInterlude = false;
+
+        function loadQuiz() {
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            showingInterlude = false;
+            const container = document.getElementById('quiz-container');
+            const data = quizData[currentQuestion];
+
+            let html = `
+                <div class="quiz-question">
+                    <h3>Question ${currentQuestion + 1} of ${quizData.length}</h3>
+                    <p>${data.question}</p>
+                    <div class="options">
+            `;
+
+            data.options.forEach((option, index) => {
+                html += `
+                    <label class="option">
+                        <input type="radio" name="answer" value="${index}" required>
+                        <span>${option}</span>
+                    </label>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <button onclick="nextQuestion()" class="btn">Next</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function displayInterlude() {
+            showingInterlude = true;
+            const container = document.getElementById('quiz-container');
+            const selectedAnswer = userAnswers[currentQuestion];
+            const data = quizData[currentQuestion];
+            const isCorrect = selectedAnswer === data.correct;
+            const message = data.messages[selectedAnswer];
+
+            let html = `
+                <div class="quiz-interlude">
+                    <div class="interlude-result ${isCorrect ? 'correct' : 'incorrect'}">
+                        <h2>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</h2>
+                        <p class="interlude-message">${message}</p>
+                    </div>
+                    <button onclick="continueQuiz()" class="btn">Continue</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function nextQuestion() {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (!selected) {
+                alert("Please select an answer!");
+                return;
+            }
+
+            userAnswers[currentQuestion] = parseInt(selected.value);
+            displayInterlude();
+        }
+
+        function continueQuiz() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            let correct = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizData[index].correct) {
+                    correct++;
+                }
+            });
+
+            const percentage = Math.round((correct / quizData.length) * 100);
+            const messages = {
+                100: "Awwwwww baby you're so cute🥰",
+                80: "Excellent! You really know us! 😘",
+                60: "Good job! You know a lot about me! 💕",
+                40: "Nice try!",
+                0: "(💢,,>﹏<,,) b-baka!"
+            };
+
+            let message = messages[0];
+            if (percentage >= 100) message = messages[100];
+            else if (percentage >= 80) message = messages[80];
+            else if (percentage >= 60) message = messages[60];
+            else if (percentage >= 40) message = messages[40];
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+            document.getElementById('score').textContent = percentage;
+            document.getElementById('result-message').textContent = message;
+        }
+
+        // Load quiz when page loads
+        window.onload = loadQuiz;
+    </script>
+</body>
+</html>

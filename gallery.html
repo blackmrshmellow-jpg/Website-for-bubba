@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💕 Our Love Story</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="love-letter.html" class="nav-link">Love Letter</a></li>
+                <li><a href="quiz.html" class="nav-link">Quiz</a></li>
+                <li><a href="survey.html" class="nav-link">Survey</a></li>
+                <li><a href="gallery.html" class="nav-link active">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="gallery-section">
+            <h1>Our Photo Gallery 📸</h1>
+            <p class="gallery-subtitle">Memories we've created together</p>
+
+            <div class="slideshow-container">
+                <div class="slide fade">
+                    <img src="https://images.unsplash.com/photo-1516912481808-846ec9cf17f7?w=800&h=600&fit=crop" alt="Photo 1">
+                    <p class="slide-caption">Our First Adventure Together 💕</p>
+                </div>
+
+                <div class="slide fade">
+                    <img src="https://images.unsplash.com/photo-1502729783557-e26aa280e25b?w=800&h=600&fit=crop" alt="Photo 2">
+                    <p class="slide-caption">A Moment of Pure Joy ✨</p>
+                </div>
+
+                <div class="slide fade">
+                    <img src="https://images.unsplash.com/photo-1516534775068-bb4aa4d6ff20?w=800&h=600&fit=crop" alt="Photo 3">
+                    <p class="slide-caption">Laughing Together 😄</p>
+                </div>
+
+                <div class="slide fade">
+                    <img src="https://images.unsplash.com/photo-1515632066519-d4b9c707aa84?w=800&h=600&fit=crop" alt="Photo 4">
+                    <p class="slide-caption">Sunset with You 🌅</p>
+                </div>
+
+                <div class="slide fade">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&h=600&fit=crop" alt="Photo 5">
+                    <p class="slide-caption">Perfect Moments 💖</p>
+                </div>
+
+                <!-- Navigation arrows -->
+                <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+                <a class="next" onclick="changeSlide(1)">&#10095;</a>
+            </div>
+
+            <!-- Slideshow indicators/dots -->
+            <div id="dotsContainer" class="dots-container"></div>
+
+            <div class="gallery-controls">
+                <button id="autoplayBtn" class="btn" onclick="toggleAutoplay()">▶ Start Autoplay</button>
+                <a href="index.html" class="btn">Back Home</a>
+            </div>
+
+            <div class="gallery-info">
+                <p>Click the arrows to navigate through our memories, or use the dots below to jump to a specific photo.</p>
+                <p>Press "Start Autoplay" to automatically cycle through the gallery.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with love just for you ❤️</p>
+    </footer>
+
+    <script>
+        // Gallery images: default placeholders, will be replaced/extended with localStorage images
+        const defaultImages = [
+            { src: '1000005254.jpg', caption: 'This was when we went down to Akaroa!' },
+            { src: '1000005256.jpg', caption: 'Look how cute you are -3-' },
+            { src: 'fishyyy.jpg', caption: 'I LOVED the aquarium when we went up to Napier! That trip was so much fun!' },
+            { src: '1000002968.jpg', caption: 'They are almost as cute as you' },
+            { src: 'weddig dress.jpg', caption: 'Remember when I found a wedding dress in the thrift store?' },
+            { src: 'more cav.jpg', caption: 'This was a beautiful trip too!' },
+            { src: '1000005131 (1).jpg', caption: 'It was really special when you made this your wallpaper.' },
+            { src: 'whoosh us.jpg', caption: 'We are so lucky to have each other!!' },
+            { src: 'egg app.jpg', caption: 'Our egg app was always really special to me. Idk why we stopped but a I really want to go back to it.' },
+            { src: 'egg.jpg', caption: 'I look back at this text message a lot. It always brightens my day. You might want to open image in new tab lol' },
+            { src: 'my favourite text.jpg', caption: 'Speaking of special messages...' },
+            { src: 'Screenshot 2025-08-10 145657.png', caption: 'Remember when I made us in The Sims?' },
+            { src: 'Screenshot 2025-08-10 142922.png', caption: 'And they fell in loveeee' },
+            { src: '2b019ece9c85c44d58ffca991f2442f7.jpg', caption: 'There are so many more memories we made together. I cant wait to make even more in the upcoming year...Lets remember to take more photos though' }
+            
+        ];
+
+        let images = [];
+        let slideIndex = 1;
+        let autoplayActive = false;
+        let autoplayInterval;
+
+        function loadImages() {
+            const stored = JSON.parse(localStorage.getItem('galleryImages') || 'null');
+            if (Array.isArray(stored) && stored.length) {
+                images = stored;
+            } else {
+                images = defaultImages.slice();
+            }
+            renderSlides();
+            renderDots();
+            showSlide(slideIndex);
+        }
+
+        function renderSlides() {
+            const container = document.querySelector('.slideshow-container');
+            // remove existing dynamic slides (keep nav arrows)
+            const arrows = Array.from(container.querySelectorAll('.prev, .next'));
+            container.innerHTML = '';
+            images.forEach((imgObj) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide fade';
+                const img = document.createElement('img');
+                img.src = imgObj.src;
+                img.alt = imgObj.caption || 'Photo';
+                const cap = document.createElement('p');
+                cap.className = 'slide-caption';
+                cap.textContent = imgObj.caption || '';
+                slide.appendChild(img);
+                slide.appendChild(cap);
+                container.appendChild(slide);
+            });
+            // append arrows back
+            arrows.forEach(a => container.appendChild(a));
+        }
+
+        function renderDots() {
+            const dotsContainer = document.getElementById('dotsContainer');
+            dotsContainer.innerHTML = '';
+            images.forEach((_, idx) => {
+                const span = document.createElement('span');
+                span.className = 'dot';
+                span.addEventListener('click', () => currentSlide(idx + 1));
+                dotsContainer.appendChild(span);
+            });
+        }
+
+        function changeSlide(n) {
+            showSlide(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlide(slideIndex = n);
+        }
+
+        function showSlide(n) {
+            const slides = document.getElementsByClassName('slide');
+            const dots = document.getElementsByClassName('dot');
+            if (slides.length === 0) return;
+            if (n > slides.length) slideIndex = 1;
+            if (n < 1) slideIndex = slides.length;
+            for (let i = 0; i < slides.length; i++) slides[i].classList.remove('active');
+            for (let i = 0; i < dots.length; i++) dots[i].classList.remove('active');
+            slides[slideIndex - 1].classList.add('active');
+            if (dots[slideIndex - 1]) dots[slideIndex - 1].classList.add('active');
+        }
+
+        function toggleAutoplay() {
+            const btn = document.getElementById('autoplayBtn');
+            if (autoplayActive) {
+                clearInterval(autoplayInterval);
+                btn.textContent = '▶ Start Autoplay';
+                autoplayActive = false;
+            } else {
+                autoplayActive = true;
+                btn.textContent = '⏸ Stop Autoplay';
+                autoplayInterval = setInterval(() => changeSlide(1), 3000);
+            }
+        }
+
+        // Add photo(s) from file input
+        function addPhotos(files, caption) {
+            const fileList = Array.from(files);
+            if (!fileList.length) return;
+            let pending = fileList.length;
+            fileList.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    images.push({ src: e.target.result, caption: caption || '' });
+                    pending--;
+                    if (pending === 0) {
+                        saveGallery();
+                        renderSlides();
+                        renderDots();
+                        showSlide(images.length); // show the last added
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function saveGallery() {
+            try {
+                localStorage.setItem('galleryImages', JSON.stringify(images));
+            } catch (e) {
+                console.error('Failed to save gallery to localStorage', e);
+            }
+        }
+
+        function clearGallery() {
+            if (!confirm('Clear all photos from the gallery?')) return;
+            images = defaultImages.slice();
+            saveGallery();
+            renderSlides();
+            renderDots();
+            showSlide(1);
+        }
+
+        // Wire up UI
+        document.addEventListener('DOMContentLoaded', () => {
+            loadImages();
+            document.getElementById('addPhotosBtn').addEventListener('click', () => {
+                const input = document.getElementById('photoInput');
+                const caption = document.getElementById('photoCaption').value.trim();
+                if (input.files.length === 0) {
+                    alert('Please select at least one image file to add.');
+                    return;
+                }
+                addPhotos(input.files, caption);
+                input.value = '';
+                document.getElementById('photoCaption').value = '';
+            });
+
+            document.getElementById('clearGalleryBtn').addEventListener('click', clearGallery);
+        });
+    </script>
+</body>
+</html>

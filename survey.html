@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationship Survey</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💕 Our Love Story</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="love-letter.html" class="nav-link">Love Letter</a></li>
+                <li><a href="quiz.html" class="nav-link">Quiz</a></li>
+                <li><a href="survey.html" class="nav-link active">Survey</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="survey-section">
+            <h1>Our Relationship Survey 💕</h1>
+            <p class="survey-subtitle">We're going full Sheldon Cooper over here hehe! For real though, you deserve the world so if there is anything I can do differently to make our relationship safe for you, let me know!
+            </p>
+
+            <form id="surveyForm" class="survey-form">
+                <div class="form-group">
+                    <label for="happiness">On a scale of 1-10, how satisfied are you in our relationship?</label>
+                    <input type="range" id="happiness" name="happiness" min="1" max="10" value="5">
+                    <span id="happinessValue">5</span>/10
+                </div>
+                <div class="form-group">
+                    <label for="love-received">On a scale of 1-10, how satisfied are you with the love you receive from me?</label>
+                    <input type="range" id="love-received" name="love-received" min="1" max="10" value="5">
+                    <span id="loveReceivedValue">5</span>/10
+                </div>
+
+                <div class="form-group">
+                    <label for="intimacy">On a scale of 1-10, how satisfied are you with our spicey time? Hon hon hon ;3 ps. this is a joke question, im not taking this one seriously</label>
+                    <input type="range" id="intimacy" name="intimacy" min="1" max="10" value="5">
+                    <span id="intimacyValue">5</span>/10
+                </div>
+
+                <div class="form-group">
+                    <label for="together">What is one thing you would like us to do together?</label>
+                    <textarea id="together" name="together" rows="4" placeholder="Share an activity or experience you'd like to do together..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="happiest">What makes you feel the happiest in our relationship?</label>
+                    <textarea id="happiest" name="happiest" rows="4" placeholder="What moments or things bring you the most joy..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="improve">Is there anything we need to work on in our relationship?</label>
+                    <textarea id="improve" name="improve" rows="4" placeholder="Your honest thoughts on areas we could improve..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="additional">Is there anything else you'd like to add?</label>
+                    <textarea id="additional" name="additional" rows="4" placeholder="Any final thoughts..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Submit Survey</button>
+                <a href="index.html" class="btn">Back Home</a>
+            </form>
+
+            <div id="survey-message" style="display: none;" class="survey-message">
+                <h2>Thank You! 💕</h2>
+                <p>I appreciate your words. They're really helpful for me so I know how to be the girlfriend you deserve MWAH 💕</p>
+                <a href="index.html" class="btn">Back Home</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with love for you ❤️</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/index.min.js"></script>
+    <script>
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize EmailJS
+            if (typeof emailjs !== 'undefined') {
+                emailjs.init('NjSSPZKxdlguX1tDQ');
+            }
+
+            // Update range value displays
+            document.getElementById('happiness').addEventListener('input', function() {
+                document.getElementById('happinessValue').textContent = this.value;
+            });
+
+            document.getElementById('love-received').addEventListener('input', function() {
+                document.getElementById('loveReceivedValue').textContent = this.value;
+            });
+
+            document.getElementById('intimacy').addEventListener('input', function() {
+                document.getElementById('intimacyValue').textContent = this.value;
+            });
+
+            // Handle form submission
+            document.getElementById('surveyForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Collect form data
+                const formData = new FormData(this);
+                const data = {
+                    happiness: formData.get('happiness'),
+                    loveReceived: formData.get('love-received'),
+                    intimacy: formData.get('intimacy'),
+                    thingsToDo: formData.get('together'),
+                    happiest: formData.get('happiest'),
+                    needsWork: formData.get('improve'),
+                    additional: formData.get('additional'),
+                    timestamp: new Date().toLocaleString()
+                };
+
+                // Save to localStorage
+                let surveys = JSON.parse(localStorage.getItem('surveys')) || [];
+                surveys.push(data);
+                localStorage.setItem('surveys', JSON.stringify(surveys));
+
+                // Send email using EmailJS
+                if (typeof emailjs !== 'undefined') {
+                    emailjs.send('service_f4b2tb7', 'template_omv48uu', {
+                        to_email: 'blackmrshmellow@gmail.com',
+                        happiness: data.happiness,
+                        loveReceived: data.loveReceived,
+                        intimacy: data.intimacy,
+                        thingsToDo: data.thingsToDo,
+                        happiest: data.happiest,
+                        needsWork: data.needsWork || 'None mentioned',
+                        additional: data.additional || 'None',
+                        timestamp: data.timestamp
+                    }).then(function(response) {
+                        console.log('Email sent successfully!', response);
+                        // Show success message
+                        document.getElementById('surveyForm').style.display = 'none';
+                        document.getElementById('survey-message').style.display = 'block';
+                    }).catch(function(error) {
+                        console.error('Email failed to send:', error);
+                        // Still show success message even if email fails (data is saved locally)
+                        document.getElementById('surveyForm').style.display = 'none';
+                        document.getElementById('survey-message').style.display = 'block';
+                    });
+                } else {
+                    // Fallback if EmailJS doesn't load
+                    console.error('EmailJS not loaded');
+                    document.getElementById('surveyForm').style.display = 'none';
+                    document.getElementById('survey-message').style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
