@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game - Our Love Story</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe4f0 100%);
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #d4547a;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #e89bb5;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #d4547a;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 15px;
+            margin: 30px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 40px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform-style: preserve-3d;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .card-back {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .card-front {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .card-front img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .card:hover:not(.matched):not(.flipped) {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.flipped .card-back {
+            display: none;
+        }
+
+        .card.flipped .card-front {
+            display: flex;
+        }
+
+        .card.matched {
+            background: linear-gradient(135deg, #ffa6d6 0%, #ffb3df 100%);
+            cursor: not-allowed;
+            animation: matchAnimation 0.6s ease;
+        }
+
+        @keyframes matchAnimation {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .card:disabled {
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            margin-top: 20px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .win-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .win-message.show {
+            display: block;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .win-message h2 {
+            color: #d4547a;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .win-message p {
+            color: #e89bb5;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">💕 For you</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="love-letter.html" class="nav-link">Love Letter</a></li>
+                <li><a href="quiz.html" class="nav-link">Quiz</a></li>
+                <li><a href="survey.html" class="nav-link">Survey</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="memory-game.html" class="nav-link active">Memory Game</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Memory Game 💕</h1>
+        <p class="subtitle">Find all the matching pairs!</p>
+         <p class="subtitle">I believe in you baby!</p>
+        
+        <div class="stats">
+            <div>Moves: <span id="moves">0</span></div>
+            <div>Matches: <span id="matches">0</span>/6</div>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+
+        <button class="reset-btn" onclick="resetGame()">🔄 New Game</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="win-message" id="winMessage">
+        <h2>That's my girl!🎉</h2>
+        <p id="winStats"></p>
+        <button class="reset-btn" onclick="resetGame()">Play Again</button>
+    </div>
+
+    <script>
+        const gameBoard = document.getElementById('gameBoard');
+        const movesDisplay = document.getElementById('moves');
+        const matchesDisplay = document.getElementById('matches');
+        const winMessage = document.getElementById('winMessage');
+        const overlay = document.getElementById('overlay');
+
+        let cards = [];
+        let flipped = [];
+        let matched = [];
+        let moves = 0;
+        let isChecking = false;
+
+        const cardPairs = [
+            { image: '7baca6fc8b539aa0414745fda8df2da7.jpg', name: 'heart' },
+            { image: 'e7824181ac2d3b3204fe7f3e1047190c.jpg', name: 'hearts' },
+            { image: '53a8900c82f55f2b917169817decaeb2.jpg', name: 'couple' },
+            { image: '845a67d0601cb6e70a961c4751b1fce6.jpg', name: 'flowers' },
+            { image: 'c03671728dd28fa2fd2cc57710894e46.jpg', name: 'sparkle' },
+            { image: 'a31dedc49b8b62264731b8a7c3d6c9bd.jpg', name: 'kiss' }
+        ];
+
+        function initGame() {
+            gameBoard.innerHTML = '';
+            cards = [];
+            flipped = [];
+            matched = [];
+            moves = 0;
+            isChecking = false;
+            winMessage.classList.remove('show');
+            overlay.classList.remove('show');
+            movesDisplay.textContent = '0';
+            matchesDisplay.textContent = '0/6';
+
+            // Create pairs
+            const cardArray = [...cardPairs, ...cardPairs];
+            // Shuffle
+            cardArray.sort(() => Math.random() - 0.5);
+
+            cardArray.forEach((card, index) => {
+                const cardEl = document.createElement('button');
+                cardEl.className = 'card';
+                cardEl.dataset.index = index;
+                cardEl.dataset.image = card.image;
+                cardEl.dataset.name = card.name;
+                cardEl.onclick = () => flipCard(index, cardEl);
+                
+                // Create card back (hidden side)
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.textContent = '❓';
+                
+                // Create card front (image side)
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                const img = document.createElement('img');
+                img.src = card.image;
+                img.alt = card.name;
+                cardFront.appendChild(img);
+                
+                cardEl.appendChild(cardBack);
+                cardEl.appendChild(cardFront);
+                gameBoard.appendChild(cardEl);
+                cards.push({ image: card.image, name: card.name, element: cardEl });
+            });
+        }
+
+        function flipCard(index, cardEl) {
+            if (isChecking || flipped.length >= 2 || flipped.includes(index) || matched.includes(index)) {
+                return;
+            }
+
+            cardEl.classList.add('flipped');
+            flipped.push(index);
+
+            if (flipped.length === 2) {
+                moves++;
+                movesDisplay.textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isChecking = true;
+            const [first, second] = flipped;
+
+            if (cards[first].image === cards[second].image) {
+                // Match found
+                matched.push(first, second);
+                matchesDisplay.textContent = `${matched.length / 2}/6`;
+
+                cards[first].element.classList.add('matched');
+                cards[second].element.classList.add('matched');
+
+                flipped = [];
+                isChecking = false;
+
+                if (matched.length === 12) {
+                    showWinMessage();
+                }
+            } else {
+                // No match
+                setTimeout(() => {
+                    cards[first].element.classList.remove('flipped');
+                    cards[second].element.classList.remove('flipped');
+                    flipped = [];
+                    isChecking = false;
+                }, 800);
+            }
+        }
+
+        function showWinMessage() {
+            overlay.classList.add('show');
+            winMessage.classList.add('show');
+            document.getElementById('winStats').textContent = `You completed it in ${moves} moves!`;
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
